@@ -77,14 +77,15 @@ st.sidebar.markdown("### 🔍 レシピを絞り込む")
 # CSVに「季節」カラムがある場合、そのユニークな値を取得
 # なければ直接 ["春", "夏", "秋", "冬"] と指定
 if '季節' in df.columns:
-    all_seasons = df['季節'].unique().tolist()
+    # dropna() で空のデータ（NaN）を消し、unique() で重複をまとめます
+    all_seasons = df['季節'].dropna().unique().tolist()
 else:
     all_seasons = ["春", "夏", "秋", "冬"]
 
 selected_seasons = st.sidebar.multiselect(
     "季節・旬を選択",
     options=all_seasons,
-    default=all_seasons  # 初期状態では全選択
+    default=all_seasons
 )
 
 # --- データフィルタリング ---
