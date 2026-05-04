@@ -137,21 +137,7 @@ else:
                     st.success("新作レシピ案が完成しました！")
                     st.markdown(answer)
                     
-                   # レシピ全文を一つの変数にまとめる
-recipe_content = f"""【{title}】
-
-■今回のポイント
-{points}
-
-■材料
-{ingredients}
-
-■作り方
-{steps}
-"""
-
-
-st.code(recipe_content, language="text")
+               
                     
                 except Exception as e:
                     st.error(f"生成エラー: {e}")
