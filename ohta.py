@@ -136,8 +136,14 @@ else:
                     
                     st.success("新作レシピ案が完成しました！")
                     st.markdown(answer)
-                    
-               
+                    # --- 2. 【追加】コピー機能 ---
+                    st.divider() # 区切り線
+                    st.caption("📋 レシピ全文をコピー（右上のアイコンをタップ）")
+                    # st.code を使うことで、標準のコピーボタンが右上に現れます
+                    st.code(answer, language="text")
                     
                 except Exception as e:
                     st.error(f"生成エラー: {e}")
+               
+                    
+            
