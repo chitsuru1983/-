@@ -2,41 +2,43 @@ import streamlit as st
 import pandas as pd
 from bs4 import BeautifulSoup
 import google.generativeai as genai
+import base64  # これが不足しているとエラーになります
 
-# --- ページ設定 ---
+# --- 1. ページ設定 ---
 st.set_page_config(
-    page_title="やさい料理研究家　大畑ちつるレシピ検索アプリ",
-    page_icon="logo.png", # logo.png
+    page_title="やさい料理研究家 大畑ちつるレシピ検索アプリ",
+    page_icon="logo.png",
     layout="wide"
 )
-# --- ロゴとタイトルの表示 ---
 
-# --- iPhoneホーム画面用設定  ---
+# --- 2. iPhoneホーム画面用設定 (Base64埋め込み) ---
+def get_image_base64(file_path):
+    try:
+        with open(file_path, "rb") as f:
+            data = f.read()
+        return base64.b64encode(data).decode()
+    except Exception:
+        return None
 
-st.markdown(
+img_base64 = get_image_base64("logo.png")
 
-    f"""
-
-    <head>
-
-        <link rel="apple-touch-icon" href="app/static/logo.png">
-
-        <meta name="apple-mobile-web-app-title" content="大畑ちつるレシピ">
-
-        <meta name="apple-mobile-web-app-capable" content="yes">
-
-    </head>
-
-    """,
-
-    unsafe_allow_html=True
-
-)
-except Exception:
-    # 万が一読み込めない場合は元のURL指定を予備として残す
+if img_base64:
+    # 画像データを直接HTMLに埋め込む
+    st.markdown(
+        f"""
+        <head>
+            <link rel="apple-touch-icon" href="data:image/png;base64,{img_base64}">
+            <meta name="apple-mobile-web-app-title" content="大畑ちつるレシピ">
+            <meta name="apple-mobile-web-app-capable" content="yes">
+        </head>
+        """,
+        unsafe_allow_html=True
+    )
+else:
+    # 画像読み込みに失敗した時の予備
     st.markdown('<link rel="apple-touch-icon" href="logo.png">', unsafe_allow_html=True)
-)
 
+# --- 3. 画面上の表示 ---
 col1, col2 = st.columns([1, 6])
 with col1:
     st.image("logo.png", width=100)
