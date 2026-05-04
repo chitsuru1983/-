@@ -4,6 +4,33 @@ from bs4 import BeautifulSoup
 import google.generativeai as genai
 import base64  # これが不足しているとエラーになります
 
+def check_password():
+    """パスワードが正しいかチェックする関数"""
+    if "password_correct" not in st.session_state:
+        st.session_state["password_correct"] = False
+
+    if st.session_state["password_correct"]:
+        return True
+
+    # ログイン画面の表示
+    st.title("🔐 認証が必要です")
+    password = st.text_input("パスワードを入力してください", type="password")
+    
+    if st.button("ログイン"):
+        if password == "20250505": 
+            st.session_state["password_correct"] = True
+            st.rerun()
+        else:
+            st.error("パスワードが違います")
+    return False
+
+# メイン処理
+if check_password():
+    # --- ここから下に本来のアプリの内容を書く ---
+    st.title("奥様専用レシピアプリ")
+    st.write("秘密のレシピ集へようこそ！")
+
+
 # --- 1. ページ設定 ---
 st.set_page_config(
     page_title="やさい料理研究家 大畑ちつるレシピ検索アプリ",
