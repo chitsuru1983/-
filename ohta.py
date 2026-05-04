@@ -27,8 +27,8 @@ def check_password():
 # メイン処理
 if check_password():
     # --- ここから下に本来のアプリの内容を書く ---
-    st.title("奥様専用レシピアプリ")
-    st.write("秘密のレシピ集へようこそ！")
+    st.title("レシピアプリ")
+    st.write("レシピ集")
 
 
 # --- 1. ページ設定 ---
