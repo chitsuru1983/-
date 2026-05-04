@@ -71,17 +71,46 @@ df = load_data("fa2ac34592382d85a2af03a450f780a4.csv")
 
 # --- UI ---
 st.sidebar.title("メニュー")
+# --- サイドバー：検索フィルター ---
+st.sidebar.markdown("### 🔍 レシピを絞り込む")
+
+# CSVに「季節」カラムがある場合、そのユニークな値を取得
+# なければ直接 ["春", "夏", "秋", "冬"] と指定
+if '季節' in df.columns:
+    all_seasons = df['季節'].unique().tolist()
+else:
+    all_seasons = ["春", "夏", "秋", "冬"]
+
+selected_seasons = st.sidebar.multiselect(
+    "季節・旬を選択",
+    options=all_seasons,
+    default=all_seasons  # 初期状態では全選択
+)
+
+# --- データフィルタリング ---
+# 選択された季節に合致するデータのみを抽出
+filtered_df = df[df['季節'].isin(selected_seasons)]
+
+# この後、検索ボックスやAI生成で「filtered_df」をベースにするよう修正
 mode = st.sidebar.radio("機能を選択", ["過去レシピを検索", "自由な食材から新作を生成"])
 
 # --- 1. 検索モード ---
 if mode == "過去レシピを検索":
     st.title("🔍 過去レシピ検索")
     q = st.text_input("キーワードを入力（食材や料理名）", placeholder="例：なす 豚肉")
+    
     if q:
         keywords = q.split()
-        mask = df['clean_content'].str.contains(keywords[0], na=False, case=False)
+        # 1つ目のキーワードで filtered_df を検索
+        mask = filtered_df['clean_content'].str.contains(keywords[0], na=False, case=False)
+        
+        # 2つ目以降のキーワードも【filtered_df】に対して絞り込みをかける
         for kw in keywords[1:]:
-            mask &= df['clean_content'].str.contains(kw, na=False, case=False)
+            mask &= filtered_df['clean_content'].str.contains(kw, na=False, case=False)
+            
+        results = filtered_df[mask]
+        
+        # 結果表示のロジックへ続く...
         
         results = df[mask]
         st.write(f"ヒット数: {len(results)}件")
