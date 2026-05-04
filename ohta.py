@@ -3,6 +3,21 @@ import pandas as pd
 from bs4 import BeautifulSoup
 import google.generativeai as genai
 
+# --- ページ設定 ---
+st.set_page_config(
+    page_title="やさい料理研究家　大畑ちつるレシピ検索アプリ",
+    page_icon="logo.png", # logo.png
+    layout="wide"
+)
+# --- ロゴとタイトルの表示 ---
+
+col1, col2 = st.columns([1, 6])
+with col1:
+    st.image("logo.png", width=100)
+with col2:
+    st.title("🥬 やさい料理研究家 大畑ちつるレシピ検索アプリ")
+    st.caption("日々の献立作りをサポートする、プロの野菜レシピ検索ツールです。")
+
 # --- 設定 ---
 if "GOOGLE_API_KEY" in st.secrets:
     genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
@@ -66,7 +81,7 @@ else:
             st.warning("食材を入力してください。")
         else:
             # プロンプトの構築
-            # ここで「奥様の過去の全レシピ」の傾向（野菜中心、彩り、時短など）を
+            # ここで「大畑ちつるの過去の全レシピ」の傾向（野菜中心、彩り、時短など）を
             # システム的な指示として盛り込みます。
             prompt = f"""
 あなたは、料理研究家（大畑ちつる）の思考を完璧にトレースしたAI助手です。
@@ -79,6 +94,9 @@ else:
 - 野菜の持ち味を活かし、彩りが豊かである。
 - 家庭にある調味料で、驚くほど美味しくなる工夫がある。
 - 手順がシンプルで、忙しい共働き家庭に優しい。
+- 肉や魚は一人当たり80～100gを目指す
+- 鶏がらスープや顆粒出汁は使わない
+- 醤油は薄口しょうゆが基本となる
 
 # ユーザーからのリクエスト（食材・条件）
 {input_text}
