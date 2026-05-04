@@ -39,12 +39,11 @@ else:
     st.markdown('<link rel="apple-touch-icon" href="logo.png">', unsafe_allow_html=True)
 
 # --- 3. 画面上の表示 ---
-# 左右に少し余白（1:4:1）を作って、中央のcol2に画像を配置するとバランスが良くなります
 col1, col2, col3 = st.columns([1, 4, 1])
 
 with col2:
     
-    st.image("title.png", use_container_width=True)
+    st.image("title1.png", use_container_width=True)
     st.caption("日々の献立作りをサポートする、プロの野菜レシピ検索ツールです。")
 
 # --- 設定 ---
