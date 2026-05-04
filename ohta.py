@@ -11,12 +11,12 @@ st.set_page_config(
 )
 # --- ロゴとタイトルの表示 ---
 
-# --- iPhoneホーム画面用設定 (メタタグの注入) ---
+# --- iPhoneホーム画面用設定  ---
 st.markdown(
     f"""
     <head>
-        <link rel="apple-touch-icon" href="logo.png">
-        <meta name="apple-mobile-web-app-title" content="ちつるレシピ">
+        <link rel="apple-touch-icon" href="app/static/logo.png">
+        <meta name="apple-mobile-web-app-title" content="大畑ちつるレシピ">
         <meta name="apple-mobile-web-app-capable" content="yes">
     </head>
     """,
