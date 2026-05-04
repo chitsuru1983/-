@@ -104,22 +104,32 @@ if mode == "過去レシピを検索":
         # 1つ目のキーワードで filtered_df を検索
         mask = filtered_df['clean_content'].str.contains(keywords[0], na=False, case=False)
         
-        # 2つ目以降のキーワードも【filtered_df】に対して絞り込みをかける
+        # --- 2つ目以降のキーワードでも絞り込む ---
         for kw in keywords[1:]:
             mask &= filtered_df['clean_content'].str.contains(kw, na=False, case=False)
-            
+        
+        # 最終的な絞り込み結果
         results = filtered_df[mask]
         
-        # 結果表示のロジックへ続く...
-        
-        results = df[mask]
+        # --- 結果の表示 ---
         st.write(f"ヒット数: {len(results)}件")
         for _, row in results.head(10).iterrows():
             with st.expander(f"📖 {row['Title']}"):
+                # 画像の表示
                 if pd.notna(row['Image URL']):
                     st.image(row['Image URL'].split('|')[0], width=300)
+                
+                # 元記事へのリンク
                 st.markdown(f"**[元記事を見る]({row['Permalink']})**")
+                
+                # レシピ本文
                 st.write(row['clean_content'])
+                
+                # --- コピー機能（st.code） ---
+                st.divider() 
+                st.caption("コピーして献立メモなどに貼り付けられます ↓")
+                copy_text = f"【{row['Title']}】\n\n{row['clean_content']}\n\n元記事: {row['Permalink']}"
+                st.code(copy_text, language="text")
 
 # --- 2. 生成モード（自由記述方式） ---
 else:
