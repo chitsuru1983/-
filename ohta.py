@@ -12,15 +12,28 @@ st.set_page_config(
 # --- ロゴとタイトルの表示 ---
 
 # --- iPhoneホーム画面用設定  ---
-st.markdown(
-    f"""
-    <head>
-        <link rel="apple-touch-icon" href="app/static/logo.png">
-        <meta name="apple-mobile-web-app-title" content="大畑ちつるレシピ">
-        <meta name="apple-mobile-web-app-capable" content="yes">
-    </head>
-    """,
-    unsafe_allow_html=True
+def get_base64_of_bin_file(bin_file):
+    with open(bin_file, 'rb') as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
+
+try:
+    # logo.pngを読み込んでデータ化する
+    bin_str = get_base64_of_bin_file('logo.png')
+    st.markdown(
+        f"""
+        <head>
+            <link rel="apple-touch-icon" href="data:image/png;base64,{bin_str}">
+            <meta name="apple-mobile-web-app-title" content="大畑ちつるレシピ">
+            <meta name="apple-mobile-web-app-capable" content="yes">
+            <meta name="apple-mobile-web-app-status-bar-style" content="default">
+        </head>
+        """,
+        unsafe_allow_html=True
+    )
+except Exception:
+    # 万が一読み込めない場合は元のURL指定を予備として残す
+    st.markdown('<link rel="apple-touch-icon" href="logo.png">', unsafe_allow_html=True)
 )
 
 col1, col2 = st.columns([1, 6])
