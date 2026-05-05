@@ -6,7 +6,7 @@ import base64
 
 # --- 1. ページ設定（最上段に配置） ---
 st.set_page_config(
-    page_title="やさい料理研究家 大畑ちつるレシピ検索アプリ",
+    page_title="レシピ検索アプリ",
     page_icon="logo.png",
     layout="wide"
 )
