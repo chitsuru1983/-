@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 import google.generativeai as genai
 import base64
 
-# --- 1. ページ設定（最上段に配置） ---
+# --- 1. ページ設定 ---
 st.set_page_config(
     page_title="レシピ検索アプリ",
     page_icon="logo.png",
@@ -13,16 +13,13 @@ st.set_page_config(
 
 # --- 2. 認証機能 ---
 def check_password():
-    """パスワードが正しいかチェックする関数"""
     if st.session_state.get("password_correct", False):
         return True
 
-    # ログイン画面の表示
     st.title("🔐 認証が必要です")
     password = st.text_input("パスワードを入力してください", type="password")
     
     if st.button("ログイン"):
-        # セキュリティを高める場合は将来的に st.secrets["app_password"] に書き換え
         if password == "20250505": 
             st.session_state["password_correct"] = True
             st.rerun()
@@ -30,9 +27,8 @@ def check_password():
             st.error("パスワードが違います")
     return False
 
-# --- 3. メイン処理（認証後に実行される全ロジック） ---
+# --- 3. メイン処理 ---
 def main_app():
-    # --- iPhoneホーム画面用設定 (Base64埋め込み) ---
     def get_image_base64(file_path):
         try:
             with open(file_path, "rb") as f:
@@ -57,21 +53,19 @@ def main_app():
     else:
         st.markdown('<link rel="apple-touch-icon" href="logo.png">', unsafe_allow_html=True)
 
-    # --- 画面上の表示 ---
     col1, col2, col3 = st.columns([1, 4, 1])
     with col2:
         st.image("title1.png", use_container_width=True)
         st.caption("日々の献立作りをサポートする、プロの野菜レシピ検索ツールです。")
 
-    # --- 設定 ---
     if "GOOGLE_API_KEY" in st.secrets:
         genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
     else:
         st.error("GOOGLE_API_KEYが見つかりません。")
 
-    model = genai.GenerativeModel('gemini-3-flash-preview')
+    # モデル名は変えない（gemini-3-flash-previewを使用）
+    model_instance = genai.GenerativeModel('gemini-3-flash-preview')
 
-    # --- データ読み込み ---
     @st.cache_data
     def load_data(file_path):
         df = pd.read_csv(file_path)
@@ -84,7 +78,6 @@ def main_app():
 
     df = load_data("fa2ac34592382d85a2af03a450f780a4.csv")
 
-    # --- UI ---
     st.sidebar.title("メニュー")
     st.sidebar.markdown("### 🔍 レシピを絞り込む")
 
@@ -102,7 +95,6 @@ def main_app():
     filtered_df = df[df['季節'].isin(selected_seasons)]
     mode = st.sidebar.radio("機能を選択", ["過去レシピを検索", "自由な食材から新作を生成"])
 
-    # --- 1. 検索モード ---
     if mode == "過去レシピを検索":
         st.title("🔍 過去レシピ検索")
         q = st.text_input("キーワードを入力（食材や料理名）", placeholder="例：なす 豚肉")
@@ -126,7 +118,6 @@ def main_app():
                     copy_text = f"【{row['Title']}】\n\n{row['clean_content']}\n\n元記事: {row['Permalink']}"
                     st.code(copy_text, language="text")
 
-    # --- 2. 生成モード ---
     else:
         st.title("✨ 自由食材で新作生成")
         st.write("手元にある食材や、使いたい調味料を自由に入力してください。")
@@ -136,14 +127,11 @@ def main_app():
             if not input_text:
                 st.warning("食材を入力してください。")
             else:
-              # --- ここから差し替え ---
-        with st.spinner("大畑ちつるの過去の味付けを分析して考案中..."):
-            try:
-                # 1. モデルの準備
-                model = genai.GenerativeModel(selected_model)
-                
-                # 2. プロンプトの構築（左端を model = ... とピッタリ揃えています）
-                prompt = f"""
+                # --- 生成ロジック（ここから修正部分） ---
+                with st.spinner("大畑ちつるの過去の味付けを分析して考案中..."):
+                    try:
+                        # プロンプトの構築（インデントを完璧に揃えました）
+                        prompt = f"""
 あなたは料理研究家の大畑ちつるです。
 あなたの過去のレシピ（野菜中心、彩り、素材を活かす味付け）を理解した上で、新作レシピを提案してください。
 
@@ -157,26 +145,23 @@ def main_app():
 # ユーザーからのリクエスト（食材・条件）
 {input_text}
 """
-                # 3. 生成実行
-                response = model.generate_content(prompt)
-                answer = response.text
-                
-                # 4. 結果の表示
-                st.success("新作レシピ案が完成しました！")
-                st.subheader("📖 大畑ちつるの新作レシピ")
-                st.markdown(answer)
-                
-                # 5. コピー用セクション
-                st.divider()
-                st.caption("📋 レシピ全文をコピー")
-                st.code(answer, language="text")
+                        # 生成実行（model_instanceを使用）
+                        response = model_instance.generate_content(prompt)
+                        answer = response.text
+                        
+                        # 結果の表示
+                        st.success("新作レシピ案が完成しました！")
+                        st.subheader("📖 大畑ちつるの新作レシピ")
+                        st.markdown(answer)
+                        
+                        st.divider()
+                        st.caption("📋 レシピ全文をコピー")
+                        st.code(answer, language="text")
 
-            except Exception as e:
-                # エラーが起きた場合のみ表示
-                st.error(f"エラーが発生しました: {e}")
-        # --- ここまで ---
+                    except Exception as e:
+                        st.error(f"エラーが発生しました: {e}")
 
-# --- 4. 実行のトリガー（ここが門番） ---
+# --- 4. 実行のトリガー ---
 if check_password():
     main_app()
 else:
