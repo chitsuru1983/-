@@ -136,33 +136,45 @@ def main_app():
             if not input_text:
                 st.warning("食材を入力してください。")
             else:
-                 # プロンプトの構築
-
-         prompt = f"""
+              # --- ここから差し替え ---
+        with st.spinner("大畑ちつるの過去の味付けを分析して考案中..."):
+            try:
+                # 1. モデルの準備
+                model = genai.GenerativeModel(selected_model)
+                
+                # 2. プロンプトの構築（左端を model = ... とピッタリ揃えています）
+                prompt = f"""
 あなたは料理研究家の大畑ちつるです。
-...
+あなたの過去のレシピ（野菜中心、彩り、素材を活かす味付け）を理解した上で、新作レシピを提案してください。
+
+【制約事項】
+・「大畑ちつる」とフルネームで名乗ること。
+・「〜の手法を採用」「〜が特徴です」といったAIによる客観的な解説は禁止します。
+・本人がブログで語るような、素材への愛着や食卓の風景を感じる主観的なトーンで書いてください。
+・共働き、蒸し炒め、薄口しょうゆ等の要素は、言葉で説明するのではなく、レシピの内容そのもので表現してください。
+・鶏がらスープや顆粒出汁は使わず、素材の旨味を「薄口しょうゆ」などで引き出す構成にしてください。
+
 # ユーザーからのリクエスト（食材・条件）
 {input_text}
 """
-                # 「response」も「prompt」と同じ縦のラインに揃える
+                # 3. 生成実行
                 response = model.generate_content(prompt)
+                answer = response.text
                 
-                st.subheader("📖 新作レシピのご提案")
-                st.markdown(response.text)
+                # 4. 結果の表示
+                st.success("新作レシピ案が完成しました！")
+                st.subheader("📖 大畑ちつるの新作レシピ")
+                st.markdown(answer)
                 
+                # 5. コピー用セクション
+                st.divider()
+                st.caption("📋 レシピ全文をコピー")
+                st.code(answer, language="text")
+
             except Exception as e:
+                # エラーが起きた場合のみ表示
                 st.error(f"エラーが発生しました: {e}")
-                with st.spinner("大畑ちつるの過去の味付けを分析して考案中..."):
-                    try:
-                        response = model.generate_content(prompt)
-                        answer = response.text
-                        st.success("新作レシピ案が完成しました！")
-                        st.markdown(answer)
-                        st.divider()
-                        st.caption("📋 レシピ全文をコピー")
-                        st.code(answer, language="text")
-                    except Exception as e:
-                        st.error(f"生成エラー: {e}")
+        # --- ここまで ---
 
 # --- 4. 実行のトリガー（ここが門番） ---
 if check_password():
