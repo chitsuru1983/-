@@ -17,7 +17,7 @@ def check_password():
         return True
 
     st.title("🔐 認証が必要です")
-    password = st.text_input("パスワードを入力してください", type="password")
+    password = st.text_input("password", type="password")
     
     if st.button("ログイン"):
         if password == "20250505": 
