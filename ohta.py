@@ -118,7 +118,7 @@ def main_app():
                     copy_text = f"【{row['Title']}】\n\n{row['clean_content']}\n\n元記事: {row['Permalink']}"
                     st.code(copy_text, language="text")
 
-   else:
+   　else:
         st.title("✨ 自由食材で新作生成")
         st.write("手元にある食材や、使いたい調味料を自由に入力してください。")
         
