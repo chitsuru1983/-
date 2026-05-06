@@ -118,16 +118,15 @@ def main_app():
                     copy_text = f"【{row['Title']}】\n\n{row['clean_content']}\n\n元記事: {row['Permalink']}"
                     st.code(copy_text, language="text")
 
-   　else:
+    else:
         st.title("✨ 自由食材で新作生成")
         st.write("手元にある食材や、使いたい調味料を自由に入力してください。")
         
-        # 初回入力用
-        input_text = st.text_area("使いたい食材・条件を入力", placeholder="例：なす、厚揚げ、少しピリ辛にしたい")
-        
-        # セッション状態の初期化
+        # 状態保持用の変数を初期化
         if "generated_recipe" not in st.session_state:
             st.session_state.generated_recipe = None
+
+        input_text = st.text_area("使いたい食材・条件を入力", placeholder="例：なす、厚揚げ、少しピリ辛にしたい")
 
         if st.button("大畑ちつるスタイルでレシピを考案"):
             if not input_text:
@@ -140,7 +139,7 @@ def main_app():
 あなたの過去のレシピ（野菜中心、彩り、素材を活かす味付け）を理解した上で、新作レシピを提案してください。
 
 【制約事項】
-・「大畑ちつる」とフルネームで名乗すること。
+・「大畑ちつる」とフルネームで名乗ること。
 ・「〜の手法を採用」「〜が特徴です」といったAIによる客観的な解説は禁止します。
 ・本人がブログで語るような、素材への愛着や食卓の風景を感じる主観的なトーンで書いてください。
 ・共働き、蒸し炒め、薄口しょうゆ等の要素は、言葉で説明するのではなく、レシピの内容そのもので表現してください。
@@ -156,29 +155,31 @@ def main_app():
                     except Exception as e:
                         st.error(f"エラーが発生しました: {e}")
 
-        # --- レシピが表示されている場合の処理 ---
+        # レシピが生成されている場合のみ表示
         if st.session_state.generated_recipe:
             st.subheader("📖 大畑ちつるの新作レシピ")
             st.markdown(st.session_state.generated_recipe)
             
             st.divider()
             
-            # --- 追加指示エリア ---
+            # 再調整機能
             st.write("### ✍️ レシピを調整する")
-            feedback = st.text_input("追加の希望（例：もう少し甘酸っぱく、2人分に変更して、など）", key="feedback_input")
+            feedback = st.text_input("追加の希望（例：2人分に変更、もう少し酸っぱく、等）", key="feedback_input")
             
             if st.button("この内容で再調整する"):
-                with st.spinner("レシピを微調整しています..."):
-                    try:
-                        # 再生成用のプロンプト（変更を最小限にする指示を追加）
-                        edit_prompt = f"""
+                if not feedback:
+                    st.warning("修正内容を入力してください。")
+                else:
+                    with st.spinner("レシピを微調整しています..."):
+                        try:
+                            edit_prompt = f"""
 あなたは料理研究家の大畑ちつるです。
 先ほど提案したレシピに対して、ユーザーから修正依頼がありました。
 
 【修正のルール】
 ・ユーザーの「追加の希望」を反映してください。
 ・**それ以外の部分は、元のレシピから絶対に変えないでください。** 構成や語り口を維持したまま、必要な箇所だけを書き換えてください。
-・引き続き、大畑ちつる本人のトーン（主観的な表現、薄口しょうゆ等のこだわり）を維持してください。
+・引き続き、大畑ちつる本人のトーンを維持してください。
 
 # 元のレシピ
 {st.session_state.generated_recipe}
@@ -186,13 +187,18 @@ def main_app():
 # ユーザーからの追加の希望
 {feedback}
 """
-                        edit_response = model_instance.generate_content(edit_prompt)
-                        st.session_state.generated_recipe = edit_response.text
-                        st.rerun() # 画面を更新して新しいレシピを表示
+                            edit_response = model_instance.generate_content(edit_prompt)
+                            st.session_state.generated_recipe = edit_response.text
+                            st.rerun()
 
-                    except Exception as e:
-                        st.error(f"エラーが発生しました: {e}")
+                        except Exception as e:
+                            st.error(f"エラーが発生しました: {e}")
 
             st.caption("📋 レシピ全文をコピー")
             st.code(st.session_state.generated_recipe, language="text")
+
+# --- 4. 実行のトリガー ---
+if check_password():
+    main_app()
+else:
     st.stop()
