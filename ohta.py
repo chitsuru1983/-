@@ -11,7 +11,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- 2. 認証機能 ---
+# --- 2. 認証機能（シークレット管理に対応） ---
 def check_password():
     if st.session_state.get("password_correct", False):
         return True
@@ -20,7 +20,10 @@ def check_password():
     password = st.text_input("password", type="password")
     
     if st.button("ログイン"):
-        if password == "20250505": 
+        # st.secrets から APP_PASSWORD を取得。設定がない場合は一時的なフォールバックパスワードを適用
+        target_password = st.secrets.get("APP_PASSWORD", "20250505")
+        
+        if password == target_password: 
             st.session_state["password_correct"] = True
             st.rerun()
         else:
@@ -241,5 +244,7 @@ def main_app():
 # --- 4. 実行のトリガー ---
 if check_password():
     main_app()
+else:
+    st.stop()
 else:
     st.stop()
