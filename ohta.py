@@ -21,7 +21,7 @@ def check_password():
     
     if st.button("ログイン"):
         # st.secrets から APP_PASSWORD を取得。設定がない場合は一時的なフォールバックパスワードを適用
-        target_password = st.secrets.get("APP_PASSWORD", "※※")
+        target_password = st.secrets.get("APP_PASSWORD", "0000")
         
         if password == target_password: 
             st.session_state["password_correct"] = True
@@ -244,7 +244,5 @@ def main_app():
 # --- 4. 実行のトリガー ---
 if check_password():
     main_app()
-else:
-    st.stop()
 else:
     st.stop()
